@@ -8,6 +8,7 @@ public class Store {
   private Scanner inputStream;
   private int[] quantities;
   private int[] subMenuQuantities;
+  private double taxRate;
   
   
   public Store(Scanner stdin) {
@@ -18,6 +19,8 @@ public class Store {
     subMenuPrices = new double[3];
     quantities = new int[6];
     subMenuQuantities = new int[3];  
+
+    taxRate = 0.05;
 
     inputStream = stdin;
 
@@ -70,39 +73,67 @@ public class Store {
   }
 
   private void printReceipt() {
-    printItems();
-    printLineBreak();
-    printDiscounts();
+    double subTotal = 0.00;
+    double total    = 0.00;
+    subTotal  = calulateAndPrintItems();
+    subTotal = calculateAndPrintDiscounts(subTotal);
+    total = printSubTotalsCalulateTotal(subTotal);
+    printLineItem("\tTotal:", total);
   }
   
-  private void printItems() {
+  private double calulateAndPrintItems() {
+    double subTotal = 0.00;
+
     if(quantities[0] > 0) {
       for(int item = 0; item < subMenuQuantities.length; item ++){
         if(subMenuQuantities[item] > 0) {
+          subTotal += subMenuPrices[item];
           printLineItem(subMenuQuantities[item] +"\t" + subMenuItems[item] + " " + menuItems[0], subMenuPrices[item]);
         }
       }
     }
     for(int item = 1; item < quantities.length; item++){
       if(quantities[item] > 0) {
+        subTotal += prices[item];
         printLineItem(quantities[item] +"\t" + menuItems[item], prices[item]);
       }
     }
+    printLineBreak();
+
+    return subTotal;
   }
-  private void printDiscounts() {
+  private double calculateAndPrintDiscounts(double subTotal) {
     boolean hasDiscount = false;
     if(quantities[0] > 0 && subMenuQuantities[2] > 0 && quantities[1] > 0) {
+      double discount = -0.75;
+      subTotal += discount;
       printLineItem("\tMondo Muffin Discount", -0.75);
       hasDiscount = true;
     }
     if(quantities[5] > 0) {
-      printLineItem("\tFree  chemestry textbook", 0.00);
+      double discount = 0.00;
+      subTotal += discount;
+      printLineItem("\tFree  chemistry textbook", 0.00);
       hasDiscount = true;
+
     }
     if(hasDiscount) {
       printLineBreak();
     }
+
+    return subTotal;
   }
+
+  private double printSubTotalsCalulateTotal(double subTotal){
+    double taxes = subTotal * taxRate;
+    double total = subTotal + taxes;
+    printLineItem("\tSubtotal:", subTotal);
+    printLineItem("\t5% Java Tax:", taxes);
+    printLineBreak();
+    return total;
+    
+  }
+
   private void printLineItem(String str, double price){
     System.out.print(str + "\t");
     System.out.printf("$%,.2f", price);
