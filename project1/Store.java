@@ -10,7 +10,6 @@ public class Store {
   private int[] subMenuQuantities;
   private double taxRate;
   
-  
   public Store(Scanner stdin) {
     prices = new double[6];
     menuItems = new String[6];
