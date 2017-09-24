@@ -1,22 +1,35 @@
 import java.util.*;
 
 public class Store {
+  //Array of item prices
   private double[] prices;
+  //Array of item  "Strings"
   private String[] menuItems;
-  private String[] subMenuItems;
+  //Aray of coffee/submenu Price
   private double[] subMenuPrices;
+  //Aray of coffee/submenu Price
+  private String[] subMenuItems;
+
+  //Input stream for interaction with user
   private Scanner inputStream;
+
+  //Will keep track of quatities being purchased per item
   private int[] quantities;
+  //Will keep track of coffee quantities
   private int[] subMenuQuantities;
+
+  //Configurable tax rate
   private double taxRate;
   
   public Store(Scanner stdin) {
-    prices = new double[6];
+    //Initialization
+    //Per project requirements, there will be 6 items to be purchased, and 3 coffee sizes
+    prices    = new double[6];
     menuItems = new String[6];
+    quantities = new int[6];
 
     subMenuItems = new String[3];
     subMenuPrices = new double[3];
-    quantities = new int[6];
     subMenuQuantities = new int[3];  
 
     taxRate = 0.05;
@@ -24,6 +37,9 @@ public class Store {
     inputStream = stdin;
 
   }
+  /*
+    showMenu - Iterates over items to show store menu
+  */
   public void showMenu() {
     System.out.println("The Java Shoppe Menu:");
     for(int item = 0; item < menuItems.length; item++){
@@ -33,28 +49,38 @@ public class Store {
     System.out.print("Which item is being purchased? ");
   }
 
+  /*
+  * run - Activates a store "rung"
+  */
   public void run(){
     
+    //Builds out items, and Prices
     buildItemsArray();
     buildPricesArray();
     
-    
+    //Which menu option they are choosing
     int menuSelection = 0;
     int submenuSelection = 0;
     int subMenuQuantity = 0;
     String input = "";
 
     do {
+      //Show menu
       showMenu();
+      //Get input
       input = inputStream.nextLine();
+      //Determine if input is valid
       if( isValidInput(input, false) ){
         menuSelection = Integer.parseInt(input);
+        //Act on menu selection
         switch (menuSelection) {
+          //If coffee, show submenu and parse the selection and quantity
           case 1:
             submenuSelection = displayAndParseSubmenu();
             subMenuQuantity = displayAndParseQuantity();
             addSubMenuItem(submenuSelection, subMenuQuantity );
             break;
+          //Else, just add normally
           case 2:
           case 3:
           case 4:
@@ -64,15 +90,19 @@ public class Store {
             break;
         }
       } else {
+        //Show error message for invalid inputs
         System.out.println("Invalid input. Please enter a value from 1 to 7");
       }
     } while (menuSelection != 7);
 
-    printReceipt();
+    //Once the user has selected 7, print the 
+    processCheckout();
     
   }
-
-  private void checkout(double total) {
+  /*
+  * cashOut - Method used to take amount paid for order
+  */
+  private void cashOut(double total) {
     
     double tender = 0.00;
     String input  = "";
@@ -93,16 +123,22 @@ public class Store {
 
     System.out.printf("Their change is $%,.2f", tender - total);
   }
-  private void printReceipt() {
+  /*
+  * processCheckout - Begins the checkout process by displaying subtotals and total
+  */
+  private void processCheckout() {
     double subTotal = 0.00;
     double total    = 0.00;
     subTotal  = calulateAndPrintItems();
     subTotal = calculateAndPrintDiscounts(subTotal);
     total = printSubTotalsCalulateTotal(subTotal);
     printLineItem("\tTotal:", total);
-    checkout(total);
+    cashOut(total);
   }
   
+  /*
+  * calulateAndPrintItems - Displays items in the order and their totals. Returns items subtotal
+  */
   private double calulateAndPrintItems() {
     double subTotal = 0.00;
 
@@ -124,6 +160,9 @@ public class Store {
 
     return subTotal;
   }
+  /*
+  * calculateAndPrintDiscounts - Displays any available and subtracts them from the subtotal. Returns new subtotal
+  */
   private double calculateAndPrintDiscounts(double subTotal) {
     boolean hasDiscount = false;
     if(quantities[0] > 0 && subMenuQuantities[2] > 0 && quantities[1] > 0) {
@@ -145,17 +184,22 @@ public class Store {
 
     return subTotal;
   }
-
+  /*
+  * Prints the order subtotal, and tax amount. Returns the order total
+  */
   private double printSubTotalsCalulateTotal(double subTotal){
     double taxes = subTotal * taxRate;
     double total = subTotal + taxes;
+    
     printLineItem("\tSubtotal:", subTotal);
     printLineItem("\t5% Java Tax:", taxes);
     printLineBreak();
-    return total;
     
+    return total;
   }
-
+  /*
+  * printLineItem - A way to abstract formatting. Takes a the line item string and the price
+  */
   private void printLineItem(String str, double price){
     System.out.print(str + "\t");
     System.out.printf("$%,.2f", price);
@@ -164,6 +208,10 @@ public class Store {
   private void printLineBreak(){
     System.out.println("-------------------------------------");
   }
+
+  /*
+  * displayAndParseQuantity - Used to valid get and validate coffee size
+  */
   private int displayAndParseQuantity(){
     boolean valid = false;
     int quantity = 0;
@@ -180,6 +228,9 @@ public class Store {
 
     return quantity;
   }
+  /*
+  * DispldisplayAndParseSubmenu - Displays the available coffee sizes, and gets/validates the input for coffee size selection
+  */
   private int displayAndParseSubmenu() {
     String input = "";
     boolean valid = false;
@@ -199,16 +250,26 @@ public class Store {
     return Integer.parseInt(input);
     
   } 
+  /*
+  * addMenuItem Increments the menu item that was selected
+  */
   private void addMenuItem(int menuSelection){
       quantities[menuSelection - 1]++;
   }
+  /*
+  * addSubMenuItem - Sets the quanity of the number of coffess ordered
+  */
   public void addSubMenuItem(int menuSelection, int quantity) {
     quantities[0]++;
     subMenuQuantities[menuSelection - 1 ] += quantity;
   }
+  /* 
+  * isValidInput - Make sure the value is an integer, and falls within the designated menu range
+  */
   private boolean isValidInput(String input, boolean submenu){
     boolean valid = false;
     try {
+      
       int value = Integer.parseInt(input);
       valid = submenu ? value > 0 && value <= 3 : value > 0 && value <= 7;
     } catch(Exception e) {
@@ -218,10 +279,12 @@ public class Store {
   }
   private void buildPricesArray(){
     
+    //Submenu prices
     subMenuPrices[0] = 1.50;
     subMenuPrices[1] = 1.75;
     subMenuPrices[2] = 2.50;
 
+    //Regular menu prices. Leave coffee as 0, since coffee charges will always be pulled from submenu
     prices[0] = 0.00;
     prices[1] = 1.75;
     prices[2] = 2.00;
@@ -231,11 +294,12 @@ public class Store {
   }
 
   private void buildItemsArray(){
-
+    //Submenu Items for coffee. 
     subMenuItems[0] = "Small";
     subMenuItems[1] = "Medium";
     subMenuItems[2] = "Mondo";
 
+    //Regular menu items
     menuItems[0] = "Brewed Coffee";
     menuItems[1] = "Chocolate Chip Muffin";
     menuItems[2] = "Pot of Tea";
