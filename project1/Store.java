@@ -70,8 +70,30 @@ public class Store {
     } while (menuSelection != 7);
 
     printReceipt();
+    
   }
 
+  private void checkout(double total) {
+    
+    double tender = 0.00;
+    String input  = "";
+    do {
+      System.out.print("Customer paid? ");
+      input = inputStream.nextLine();
+      try {
+        tender = Double.parseDouble(input);
+        if(tender < total) {
+          System.out.println("Tender must be greater then the total");
+        }
+      } catch(Exception e) {
+        tender = 0.00;
+        System.out.println("Please enter a valid tender");
+
+      }
+    } while(tender < total);
+
+    System.out.printf("Their change is $%,.2f", tender - total);
+  }
   private void printReceipt() {
     double subTotal = 0.00;
     double total    = 0.00;
@@ -79,6 +101,7 @@ public class Store {
     subTotal = calculateAndPrintDiscounts(subTotal);
     total = printSubTotalsCalulateTotal(subTotal);
     printLineItem("\tTotal:", total);
+    checkout(total);
   }
   
   private double calulateAndPrintItems() {
@@ -200,7 +223,7 @@ public class Store {
     subMenuPrices[1] = 1.75;
     subMenuPrices[2] = 2.50;
 
-    prices[0] = -1.00;
+    prices[0] = 0.00;
     prices[1] = 1.75;
     prices[2] = 2.00;
     prices[3] = 2.50;
