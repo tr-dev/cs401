@@ -71,25 +71,45 @@ public class Store {
 
   private void printReceipt() {
     printItems();
+    printLineBreak();
+    printDiscounts();
   }
   
   private void printItems() {
     if(quantities[0] > 0) {
       for(int item = 0; item < subMenuQuantities.length; item ++){
         if(subMenuQuantities[item] > 0) {
-          System.out.print(subMenuQuantities[item] +"\t" + subMenuItems[item] + " " +  menuItems[0] + "\t\t\t");
-          System.out.printf("$% .2f", subMenuPrices[item]);
-          System.out.print("\n");
+          printLineItem(subMenuQuantities[item] +"\t" + subMenuItems[item] + " " + menuItems[0], subMenuPrices[item]);
         }
       }
     }
     for(int item = 1; item < quantities.length; item++){
       if(quantities[item] > 0) {
-        System.out.print(quantities[item] +"\t" + menuItems[item] + "\t\t\t");
-        System.out.printf("$%,.2f", prices[item]);
-        System.out.print("\n");
+        printLineItem(quantities[item] +"\t" + menuItems[item], prices[item]);
       }
     }
+  }
+  private void printDiscounts() {
+    boolean hasDiscount = false;
+    if(quantities[0] > 0 && subMenuQuantities[2] > 0 && quantities[1] > 0) {
+      printLineItem("\tMondo Muffin Discount", -0.75);
+      hasDiscount = true;
+    }
+    if(quantities[5] > 0) {
+      printLineItem("\tFree  chemestry textbook", 0.00);
+      hasDiscount = true;
+    }
+    if(hasDiscount) {
+      printLineBreak();
+    }
+  }
+  private void printLineItem(String str, double price){
+    System.out.print(str + "\t");
+    System.out.printf("$%,.2f", price);
+    System.out.print("\n");
+  }
+  private void printLineBreak(){
+    System.out.println("-------------------------------------");
   }
   private int displayAndParseQuantity(){
     boolean valid = false;
